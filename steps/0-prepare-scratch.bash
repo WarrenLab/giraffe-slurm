@@ -26,7 +26,7 @@ while read line; do
     fi
 
     echo -e "$library_id\t$newloc_r1_reads\t$newloc_r2_reads"
-done < $LIBRARIES_FILE > $SCRATCH_DIR/libraries.tsv
+done < $LIBRARIES_LIST > $SCRATCH_DIR/libraries.tsv
 
 mkdir -p $SCRATCH_DIR/out/gam
 mkdir -p $SCRATCH_DIR/out/bam
