@@ -2,12 +2,15 @@
 
 set -e
 
-source config.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source $SCRIPT_DIR/config.sh
 
 array_size=$(wc -l $LIBRARIES_LIST)
 
-bash steps/0-prepare-scratch.bash
+echo "Copying files to scratch..."
+bash $SCRIPT_DIR/steps/0-prepare-scratch.bash
 
+echo "Submitting jobs..."
 giraffe_job_id=$(sbatch \
     -a 1-${array_size} \
     --clusters $CLUSTER \
@@ -18,7 +21,7 @@ giraffe_job_id=$(sbatch \
     -o logs/giraffe.%a.out \
     -e logs/giraffe.%a.err \
     --parseable \
-    steps/1-giraffe-align.slurm \
+    $SCRIPT_DIR/steps/1-giraffe-align.slurm \
     | sed 's/;.\+$//')
 
 surject_job_id=$(sbatch \
@@ -31,5 +34,7 @@ surject_job_id=$(sbatch \
     -o $OUT_DIR/logs/surject.%a.out \
     -e $OUT_DIR/logs/surject.%a.err \
     --dependendy=aftercorr:${giraffe_task_id}
-    steps/2-surject.slurm \
+    $SCRIPT_DIR/steps/2-surject.slurm \
     | sed 's/;.\+$//')
+
+echo "Done submitting jobs."

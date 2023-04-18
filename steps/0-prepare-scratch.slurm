@@ -2,7 +2,8 @@
 
 set -e
 
-source ../config.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source ${SCRIPT_DIR}/../config.sh
 
 reads_dir="$SCRATCH_DIR/reads"
 mkdir -p $reads_dir
@@ -25,7 +26,7 @@ while read line; do
     fi
 
     echo -e "$library_id\t$newloc_r1_reads\t$newloc_r2_reads"
-done < $LIBRARIES_FILE > libraries_scratch.tsv
+done < $LIBRARIES_FILE > $SCRATCH_DIR/libraries.tsv
 
 mkdir -p $SCRATCH_DIR/out/gam
 mkdir -p $SCRATCH_DIR/out/bam

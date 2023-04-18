@@ -2,7 +2,8 @@
 
 set -e
 
-source ../config.sh
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[1]}" )" &> /dev/null && pwd )
+source ${SCRIPT_DIR}/../config.sh
 
 library_id=$(head -n $SLURM_ARRAY_TASK_ID libraries_scratch.tsv | tail -n 1 | cut -f1)
 

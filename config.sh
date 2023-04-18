@@ -37,3 +37,5 @@ SURJECT_CPUS=20
 SURJECT_MEM="50G"
 SURJECT_TIME="6:00:00"
 
+eval "$(conda shell.bash hook)"
+conda activate vg
