@@ -36,9 +36,11 @@ surject_job_id=$(sbatch \
     -t $SURJECT_TIME \
     -o $OUT_DIR/logs/surject.%a.out \
     -e $OUT_DIR/logs/surject.%a.err \
-    --dependency=aftercorr:${giraffe_task_id} \
+    --dependency=aftercorr:${giraffe_job_id} \
     --parsable \
     $SCRIPT_DIR/steps/2-surject.slurm \
     | sed 's/;.\+$//')
 
-echo "Done submitting jobs."
+echo "Done submitting jobs. Results will be in"
+echo "$SCRATCH_DIR"
+echo "once they are finished."

@@ -31,5 +31,6 @@ done < $LIBRARIES_LIST > $SCRATCH_DIR/libraries.tsv
 mkdir -p $SCRATCH_DIR/out/gam
 mkdir -p $SCRATCH_DIR/out/bam
 
+echo "Copying indices..." 1>&2
 mkdir -p $SCRATCH_DIR/indices
 cp $INDEX_DIR/* $SCRATCH_DIR/indices/
