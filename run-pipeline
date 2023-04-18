@@ -10,6 +10,8 @@ array_size=$(wc -l < $LIBRARIES_LIST)
 echo "Copying files to scratch..."
 bash $SCRIPT_DIR/steps/0-prepare-scratch.bash
 
+mkdir -p $OUT_DIR/logs
+
 echo "Submitting jobs..."
 giraffe_job_id=$(sbatch \
     -a 1-${array_size} \
@@ -18,11 +20,12 @@ giraffe_job_id=$(sbatch \
     --cpus-per-task $GIRAFFE_CPUS \
     --mem $GIRAFFE_MEM \
     -t $GIRAFFE_TIME \
-    -o logs/giraffe.%a.out \
-    -e logs/giraffe.%a.err \
-    --parseable \
+    -o $OUT_DIR/logs/giraffe.%a.out \
+    -e $OUT_DIR/logs/giraffe.%a.err \
+    --parsable \
     $SCRIPT_DIR/steps/1-giraffe-align.slurm \
     | sed 's/;.\+$//')
+echo "Submitted job ${giraffe_job_id}."
 
 surject_job_id=$(sbatch \
     -a 1-${array_size} \
@@ -33,7 +36,8 @@ surject_job_id=$(sbatch \
     -t $SURJECT_TIME \
     -o $OUT_DIR/logs/surject.%a.out \
     -e $OUT_DIR/logs/surject.%a.err \
-    --dependendy=aftercorr:${giraffe_task_id}
+    --dependency=aftercorr:${giraffe_task_id} \
+    --parsable \
     $SCRIPT_DIR/steps/2-surject.slurm \
     | sed 's/;.\+$//')
 
