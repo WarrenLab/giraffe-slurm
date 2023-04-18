@@ -5,7 +5,7 @@ set -e
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source $SCRIPT_DIR/config.sh
 
-array_size=$(wc -l $LIBRARIES_LIST)
+array_size=$(wc -l < $LIBRARIES_LIST)
 
 echo "Copying files to scratch..."
 bash $SCRIPT_DIR/steps/0-prepare-scratch.bash
