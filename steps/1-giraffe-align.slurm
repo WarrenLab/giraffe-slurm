@@ -9,9 +9,9 @@ else
 fi
 source ${SCRIPT_DIR}/../config.sh
 
-library_id=$(head -n $SLURM_ARRAY_TASK_ID $SCRATCH_DIR/libraries.tsv | tail -n 1 | cut -f1)
-r1Reads=$(head -n $SLURM_ARRAY_TASK_ID $SCRATCH_DIR/libraries.tsv | tail -n 1 | cut -f2)
-r2Reads=$(head -n $SLURM_ARRAY_TASK_ID $SCRATCH_DIR/libraries.tsv | tail -n 1 | cut -f3)
+library_id=$(head -n $SLURM_ARRAY_TASK_ID $SCRATCH_DIR/libraries.txt | tail -n 1)
+r1Reads="$SCRATCH_DIR/reads/${library_id}_R1.fastq.gz"
+r2Reads="$SCRATCH_DIR/reads/${library_id}_R2.fastq.gz"
 
 vg giraffe -t $SLURM_CPUS_PER_TASK -p \
     -Z $SCRATCH_DIR/indices/pangenome.gbz \

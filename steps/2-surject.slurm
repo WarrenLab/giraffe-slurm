@@ -11,7 +11,7 @@ else
 fi
 source ${SCRIPT_DIR}/../config.sh
 
-library_id=$(head -n $SLURM_ARRAY_TASK_ID $SCRATCH_DIR/libraries.tsv | tail -n 1 | cut -f1)
+library_id=$(head -n $SLURM_ARRAY_TASK_ID $SCRATCH_DIR/libraries.txt | tail -n 1)
 
 vg surject -t $SLURM_CPUS_PER_TASK \
     -x $SCRATCH_DIR/indices/pangenome.gbz \
