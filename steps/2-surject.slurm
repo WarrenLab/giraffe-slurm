@@ -18,5 +18,14 @@ vg surject -t $SLURM_CPUS_PER_TASK \
     -b $SCRATCH_DIR/out/gam/${library_id}.gam \
     | samtools sort -@ $SLURM_CPUS_PER_TASK - \
     > $SCRATCH_DIR/out/bam/${library_id}.bam
+samtools view -H $SCRATCH_DIR/out/bam/${library_id}.bam \
+    | sed 's/bGalGal1b#0#//' > $SCRATCH_DIR/out/bam/${library_id}.header.txt
+samtools reheader \
+    $SCRATCH_DIR/out/bam/${library_id}.header.txt \
+    $SCRATCH_DIR/out/bam/${library_id}.bam \
+    > $SCRATCH_DIR/out/bam/${library_id}.reheadered.bam
+mv $SCRATCH_DIR/out/bam/${library_id}.reheadered.bam \
+    $SCRATCH_DIR/out/bam/${library_id}.bam
+rm $SCRATCH_DIR/out/bam/${library_id}.header.txt
 samtools index -@ $SLURM_CPUS_PER_TASK \
     $SCRATCH_DIR/out/bam/${library_id}.bam
