@@ -7,39 +7,57 @@ source $SCRIPT_DIR/config.sh
 
 array_size=$(wc -l < $LIBRARIES_LIST)
 
-echo "Copying files to scratch..."
-bash $SCRIPT_DIR/steps/0-prepare-scratch.bash
+prepare_scratch () {
+    echo "Copying files to scratch..."
+    bash $SCRIPT_DIR/steps/0-prepare-scratch.bash
+    mkdir -p $OUT_DIR/logs
+}
 
-mkdir -p $OUT_DIR/logs
+submit_giraffe () {
+    giraffe_job_id=$(sbatch \
+        -a 1-${array_size} \
+        --clusters $CLUSTER \
+        -p $PARTITION \
+        --cpus-per-task $GIRAFFE_CPUS \
+        --mem $GIRAFFE_MEM \
+        -t $GIRAFFE_TIME \
+        -o $OUT_DIR/logs/giraffe.%a.out \
+        -e $OUT_DIR/logs/giraffe.%a.err \
+        --parsable \
+        $SCRIPT_DIR/steps/1-giraffe-align.slurm \
+        | sed 's/;.\+$//')
+    echo "Submitted job ${giraffe_job_id}."
+}
 
-echo "Submitting jobs..."
-giraffe_job_id=$(sbatch \
-    -a 1-${array_size} \
-    --clusters $CLUSTER \
-    -p $PARTITION \
-    --cpus-per-task $GIRAFFE_CPUS \
-    --mem $GIRAFFE_MEM \
-    -t $GIRAFFE_TIME \
-    -o $OUT_DIR/logs/giraffe.%a.out \
-    -e $OUT_DIR/logs/giraffe.%a.err \
-    --parsable \
-    $SCRIPT_DIR/steps/1-giraffe-align.slurm \
-    | sed 's/;.\+$//')
-echo "Submitted job ${giraffe_job_id}."
+submit_surject () {
+    surject_job_id=$(sbatch \
+        -a 1-${array_size} \
+        --clusters $CLUSTER \
+        -p $PARTITION \
+        --cpus-per-task $SURJECT_CPUS \
+        --mem $SURJECT_MEM \
+        -t $SURJECT_TIME \
+        -o $OUT_DIR/logs/surject.%a.out \
+        -e $OUT_DIR/logs/surject.%a.err \
+        --dependency=aftercorr:${giraffe_job_id} \
+        --parsable \
+        $SCRIPT_DIR/steps/2-surject.slurm \
+        | sed 's/;.\+$//')
+}
 
-surject_job_id=$(sbatch \
-    -a 1-${array_size} \
-    --clusters $CLUSTER \
-    -p $PARTITION \
-    --cpus-per-task $SURJECT_CPUS \
-    --mem $SURJECT_MEM \
-    -t $SURJECT_TIME \
-    -o $OUT_DIR/logs/surject.%a.out \
-    -e $OUT_DIR/logs/surject.%a.err \
-    --dependency=aftercorr:${giraffe_job_id} \
-    --parsable \
-    $SCRIPT_DIR/steps/2-surject.slurm \
-    | sed 's/;.\+$//')
+if [ -z $1 ]; then
+    prepare_scratch
+    submit_giraffe
+    submit_surject
+elif [ $1 == "prepare" ]; then
+    prepare_scratch
+elif [ $1 == "giraffe" ]; then
+    submit_giraffe
+elif [ $1 == "surject" ]; then
+    submit_surject
+else
+    echo "That's not a real argument."
+fi
 
 echo "Done submitting jobs. Results will be in"
 echo "$SCRATCH_DIR"
